@@ -1,3 +1,4 @@
+require('dotenv').config(); // Charge les variables d'environnement
 const express = require('express');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
@@ -16,8 +17,8 @@ let transporter = nodemailer.createTransport({
   // Configuration pour Gmail
   service: 'gmail',
   auth: {
-    user: 'ral.rdc2025@gmail.com', // Remplacez par votre adresse Gmail
-    pass: 'HitechCongo2024' // Utilisez un mot de passe d'application, pas votre mot de passe Gmail
+    user: process.env.EMAIL_USER, // Jamais de mot de passe en clair !
+    pass: process.env.EMAIL_PASS
     // Pour créer un mot de passe d'application: https://myaccount.google.com/apppasswords
   }
   
@@ -109,8 +110,7 @@ Engagement : ${engagement ? 'Oui' : 'Non'}
     
     // Envoyer l'email
     await transporter.sendMail(mailOptions);
-    
-    res.status(200).json({ success: true, message: 'Email envoyé avec succès' });
+    return res.status(200).json({ success: true, message: 'Email envoyé avec succès' });
   } catch (error) {
     console.error('Erreur lors de l\'envoi de l\'email:', error);
     res.status(500).json({ success: false, message: 'Erreur lors de l\'envoi de l\'email' });

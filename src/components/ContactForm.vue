@@ -173,10 +173,17 @@
   <svg class="w-16 h-16 text-green-500 mb-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
   <h3 class="text-2xl font-bold mb-2 text-primary-700">Merci pour votre inscription !</h3>
   <p class="mb-2">Votre formulaire a bien été envoyé.</p>
-  <div class="bg-blue-50 text-blue-900 rounded p-4 mt-4 text-center">
-    <span class="font-semibold block mb-1">Info :</span>
-    Votre contribution se fait via ce numéro :<br>
-    <span class="font-mono text-lg">0998 696 641</span>
+  <div class="bg-blue-50 text-blue-900 rounded p-4 mt-4 text-center w-full max-w-xs sm:max-w-md mx-auto">
+    <span class="font-semibold block mb-2">Info :</span>
+    <p class="mb-2">Votre contribution se fait via ces numéros :</p>
+    <div class="flex flex-col sm:flex-row justify-center gap-3">
+      <div class="p-2 bg-white bg-opacity-50 rounded-md inline-block">
+        <span class="font-mono text-lg font-medium">0998 696 641</span>
+      </div>
+      <div class="p-2 bg-white bg-opacity-50 rounded-md inline-block">
+        <span class="font-mono text-lg font-medium">0825 433 625</span>
+      </div>
+    </div>
   </div>
 </div>
   </div>

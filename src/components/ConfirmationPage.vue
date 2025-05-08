@@ -22,6 +22,20 @@
         </p>
       </div>
       
+      <!-- Contribution Numbers -->
+      <div class="bg-blue-50 text-blue-900 rounded p-4 mb-6 text-center w-full max-w-xs sm:max-w-md mx-auto">
+        <span class="font-semibold block mb-2">Info :</span>
+        <p class="mb-2">Votre contribution se fait via ces numéros :</p>
+        <div class="flex flex-col sm:flex-row justify-center gap-3">
+          <div class="p-2 bg-white bg-opacity-50 rounded-md inline-block">
+            <span class="font-mono text-lg font-medium">0998 696 641</span>
+          </div>
+          <div class="p-2 bg-white bg-opacity-50 rounded-md inline-block">
+            <span class="font-mono text-lg font-medium">0825 433 625</span>
+          </div>
+        </div>
+      </div>
+      
       <!-- Animated Details -->
       <div class="w-full max-w-md space-y-4 mb-8">
         <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 animate-slide-up" style="animation-delay: 200ms;">
