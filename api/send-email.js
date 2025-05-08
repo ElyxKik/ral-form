@@ -1,5 +1,7 @@
-require('dotenv').config();
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
+
+// Initialiser Resend avec la clé API
+const resend = new Resend('re_SsnctnZi_9rab8h7p1J3QYvF2W2uTfMr9');
 
 module.exports = async (req, res) => {
   // Activer CORS spécifiquement pour ral-rdc.online
@@ -35,55 +37,8 @@ module.exports = async (req, res) => {
       contribution, competence, montant, engagement
     } = req.body;
 
-    // Créer le transporteur SMTP
-    // Tenter de se connecter avec le port 465 (SSL)
-    let transporter = nodemailer.createTransport({
-      host: 'mail.ral-rdc.online',
-      port: 465,
-      secure: true, // true pour 465
-      auth: {
-        user: process.env.EMAIL_USER || 'formulaire@ral-rdc.online',
-        pass: process.env.EMAIL_PASS
-      },
-      tls: {
-        rejectUnauthorized: false
-      },
-      debug: true // Activer le débogage pour voir plus d'informations
-    });
-
-    // Configurer l'email
-    const mailOptions = {
-      from: 'formulaire@ral-rdc.online',
-      to: 'kikuniely@gmail.com',
-      subject: `Nouvelle demande d'adhésion : ${nom} ${prenom}`,
-      text: `
-Identité
---------
-Nom : ${nom}
-Post-nom : ${postnom}
-Prénom : ${prenom}
-Date de naissance : ${dateNaissance}
-Ville de naissance : ${villeNaissance}
-Province d'origine : ${province}
-Lieu de résidence : ${residence}
-Adresse mail : ${email}
-Téléphone : ${telephone}
-État civil : ${etatcivil}
-Niveau d'études : ${niveau}
-Statut social : ${statut}
-
-Adhésion
---------
-Type d'adhésion : ${typeAdhesion}
-${typeAdhesion === 'morale' ? `Nom de la structure : ${structureNom}\nNuméro d'enregistrement : ${structureNum}` : ''}
-Type de membre : ${typeMembre}
-Comment avez-vous connu RAL : ${(connaitRAL || []).join(', ')}
-Contribution prévue : ${contribution}
-Domaine de compétence : ${competence}
-Contribution mensuelle : ${montant} $
-Engagement : ${engagement ? 'Oui' : 'Non'}
-      `,
-      html: `
+    // Préparer le contenu HTML de l'email
+    const html = `
         <h2>Nouvelle demande d'adhésion</h2>
         <h3>Identité</h3>
         <ul>
@@ -111,11 +66,16 @@ Engagement : ${engagement ? 'Oui' : 'Non'}
           <li><strong>Contribution mensuelle :</strong> ${montant} $</li>
           <li><strong>Engagement :</strong> ${engagement ? 'Oui' : 'Non'}</li>
         </ul>
-      `
-    };
+    `;
 
-    // Envoyer l'email
-    await transporter.sendMail(mailOptions);
+    // Envoyer l'email avec Resend
+    await resend.emails.send({
+      from: 'onboarding@resend.dev', // Pour le moment, utilise l'adresse de test
+      to: 'kikuniely@gmail.com',
+      subject: `Nouvelle demande d'adhésion : ${nom} ${prenom}`,
+      html
+    });
+
     return res.status(200).json({ success: true, message: 'Email envoyé avec succès' });
   } catch (error) {
     // Log détaillé de l'erreur

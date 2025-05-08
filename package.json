@@ -13,6 +13,7 @@
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "nodemailer": "^7.0.2",
+    "resend": "^4.5.1",
     "vue": "^3.3.4",
     "vue-toastification": "^2.0.0-rc.5"
   },
