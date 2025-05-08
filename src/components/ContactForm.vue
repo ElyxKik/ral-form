@@ -347,8 +347,8 @@ async function handleSubmit() {
     // Préparer les données du formulaire pour l'envoi
     const emailData = { ...form };
     // Envoi réel de l'email via notre API SMTP
-    // Utiliser l'URL complète de l'API Vercel
-    const apiUrl = 'https://ral-form.vercel.app/api/send-email';
+    // Utiliser le chemin relatif pour que ça fonctionne sur tous les domaines liés au projet
+    const apiUrl = '/api/send-email';
     console.log('Envoi du formulaire à:', apiUrl);
     
     const response = await fetch(apiUrl, {
