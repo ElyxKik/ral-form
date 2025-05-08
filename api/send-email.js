@@ -2,9 +2,15 @@ require('dotenv').config();
 const nodemailer = require('nodemailer');
 
 module.exports = async (req, res) => {
-  // Activer CORS
+  // Activer CORS spécifiquement pour ral-rdc.online
+  const allowedOrigins = ['https://www.ral-rdc.online', 'https://ral-rdc.online', 'http://localhost:3000'];
+  const origin = req.headers.origin;
+  
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  
   res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
   res.setHeader(
     'Access-Control-Allow-Headers',
