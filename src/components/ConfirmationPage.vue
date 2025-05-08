@@ -28,10 +28,10 @@
         <p class="mb-2">Votre contribution se fait via ces numéros :</p>
         <div class="flex flex-col sm:flex-row justify-center gap-3">
           <div class="p-2 bg-white bg-opacity-50 rounded-md inline-block">
-            <span class="font-mono text-lg font-medium">0998 696 641</span>
+            <span class="font-mono text-lg font-medium"> | 0825 433 625</span>
           </div>
           <div class="p-2 bg-white bg-opacity-50 rounded-md inline-block">
-            <span class="font-mono text-lg font-medium">0825 433 625</span>
+            <span class="font-mono text-lg font-medium">0998 696 641 | 0825 433 625</span>
           </div>
         </div>
       </div>

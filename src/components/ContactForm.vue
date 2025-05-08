@@ -149,9 +149,15 @@
               </label>
               <p v-if="errors.engagement" class="error-text">{{ errors.engagement }}</p>
             </div>
-            <div class="animate-slide-up bg-blue-50 p-3 rounded-md text-sm text-primary-700 flex items-center gap-2">
-              <span class="font-semibold">Info :</span>
-              Votre contribution se fait via ce numéro : <span class="font-mono">0998 696 641</span>
+            <div class="animate-slide-up bg-blue-50 p-3 rounded-md text-sm text-primary-700 flex-col items-center gap-2">
+              <div>
+              <span class="font-semibold">
+                Votre contribution se fait via ces numéros : 
+              </span>
+              </div>
+              <div>
+                <span class="font-mono">0998 696 641 | 0825 433 625</span>
+              </div>
             </div>
           </div>
         </template>
@@ -341,7 +347,7 @@ async function handleSubmit() {
     // Préparer les données du formulaire pour l'envoi
     const emailData = { ...form };
     // Envoi réel de l'email via notre API SMTP
-    const response = await fetch('http://localhost:3000/send-email', {
+    const response = await fetch('/api/send-email', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

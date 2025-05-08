@@ -1,48 +1,52 @@
-require('dotenv').config(); // Charge les variables d'environnement
-const express = require('express');
-const cors = require('cors');
+require('dotenv').config();
 const nodemailer = require('nodemailer');
-const bodyParser = require('body-parser');
 
-const app = express();
-const PORT = 3000;
+module.exports = async (req, res) => {
+  // Activer CORS
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  );
 
-// Middleware
-app.use(cors());
-app.use(bodyParser.json());
-
-// Créer un transporteur SMTP réutilisable
-// Vous pouvez utiliser Gmail (moins recommandé pour la production) ou Mailtrap (pour les tests)
-let transporter = nodemailer.createTransport({
-  // Configuration pour le serveur mail.ral-rdc.online
-  host: 'mail.ral-rdc.online',
-  port: 587,
-  secure: false, // true pour 465, false pour les autres ports
-  auth: {
-    user: process.env.EMAIL_USER, // formulaire@ral-rdc.online
-    pass: process.env.EMAIL_PASS
-  },
-  tls: {
-    // Ne pas échouer si le certificat n'est pas valide
-    rejectUnauthorized: false
+  // Gérer les requêtes OPTIONS (pre-flight)
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
   }
-});
 
-// Route pour envoyer un email
-app.post('/send-email', async (req, res) => {
-  const { name, email, phone, subject, message } = req.body;
-  
+  // Vérifier que la méthode est POST
+  if (req.method !== 'POST') {
+    return res.status(405).json({ success: false, message: 'Méthode non autorisée' });
+  }
+
   try {
-    // Options d'email adaptées au formulaire d'adhésion
+    // Récupérer les données du formulaire
     const {
       nom, postnom, prenom, dateNaissance, villeNaissance, province, residence, email, telephone,
       etatcivil, niveau, statut, typeAdhesion, structureNom, structureNum, typeMembre, connaitRAL,
       contribution, competence, montant, engagement
     } = req.body;
 
+    // Créer le transporteur SMTP
+    let transporter = nodemailer.createTransport({
+      host: 'mail.ral-rdc.online',
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.EMAIL_USER || 'formulaire@ral-rdc.online',
+        pass: process.env.EMAIL_PASS
+      },
+      tls: {
+        rejectUnauthorized: false
+      }
+    });
+
+    // Configurer l'email
     const mailOptions = {
-      from: 'formulaire@ral-rdc.online', // Adresse de l'expéditeur
-      to: 'contact@ral-rdc.online', // Adresse du destinataire
+      from: 'formulaire@ral-rdc.online',
+      to: 'kikuniely@gmail.com',
       subject: `Nouvelle demande d'adhésion : ${nom} ${prenom}`,
       text: `
 Identité
@@ -102,17 +106,11 @@ Engagement : ${engagement ? 'Oui' : 'Non'}
       `
     };
 
-    
     // Envoyer l'email
     await transporter.sendMail(mailOptions);
     return res.status(200).json({ success: true, message: 'Email envoyé avec succès' });
   } catch (error) {
     console.error('Erreur lors de l\'envoi de l\'email:', error);
-    res.status(500).json({ success: false, message: 'Erreur lors de l\'envoi de l\'email' });
+    return res.status(500).json({ success: false, message: 'Erreur lors de l\'envoi de l\'email' });
   }
-});
-
-// Démarrer le serveur
-app.listen(PORT, () => {
-  console.log(`Serveur démarré sur http://localhost:${PORT}`);
-});
+};
