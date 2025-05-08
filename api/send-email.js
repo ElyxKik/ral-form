@@ -16,7 +16,6 @@ export default async function handler(req) {
     });
   }
 
-  // Vérifier que la méthode est POST
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Méthode non autorisée' }), {
       status: 405,
@@ -29,8 +28,6 @@ export default async function handler(req) {
 
   try {
     const formData = await req.json();
-    
-    // Construire le contenu de l'email
     const html = `
       <h2>Nouvelle demande d'adhésion</h2>
       <h3>Identité</h3>
@@ -61,7 +58,6 @@ export default async function handler(req) {
       </ul>
     `;
 
-    // Envoyer l'email via l'API Resend
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
