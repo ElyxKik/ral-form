@@ -346,7 +346,6 @@ async function handleSubmit() {
   try {
     // Préparer les données du formulaire pour l'envoi
     const emailData = { ...form };
-    // Envoi réel de l'email via notre API SMTP
     // Utiliser le chemin relatif pour que ça fonctionne sur tous les domaines liés au projet
     const apiUrl = '/api/send-email';
     console.log('Envoi du formulaire à:', apiUrl);
@@ -358,31 +357,31 @@ async function handleSubmit() {
       },
       body: JSON.stringify(emailData)
     });
-    const result = await response.json();
-    if (!result.success) {
-      throw new Error(result.message || 'Erreur lors de l\'envoi de l\'email');
+
+    // Extraire le texte de la réponse et le convertir en JSON
+    let result;
+    const responseText = await response.text();
+    
+    try {
+      result = JSON.parse(responseText);
+    } catch (e) {
+      console.error('Réponse non-JSON:', responseText);
+      throw new Error('Réponse invalide du serveur');
     }
-    toast.success('Votre message a été envoyé avec succès!');
+
+    // Vérifier si la réponse indique une erreur
+    if (!response.ok) {
+      throw new Error(result.message || `Erreur ${response.status}: ${response.statusText}`);
+    }
+
+    // Afficher le message de succès et passer à la page de confirmation
+    toast.success(result.message || 'Votre message a été envoyé avec succès!');
     confirmation.value = true;
+
   } catch (error) {
+    // Gérer les erreurs
     console.error('Erreur lors de l\'envoi du formulaire:', error);
-    
-    // Tenter d'extraire les détails de l'erreur si disponibles
-    let errorMessage = 'Une erreur est survenue lors de l\'envoi du message. Veuillez réessayer.';
-    
-    // Vérifier si nous avons des détails d'erreur du serveur
-    if (error.response && error.response.details) {
-      const details = error.response.details;
-      if (details.code === 'ECONNREFUSED') {
-        errorMessage = 'Impossible de se connecter au serveur mail. Vérifiez les paramètres de connexion.';
-      } else if (details.responseCode === 535) {
-        errorMessage = 'Authentification SMTP échouée. Vérifiez les identifiants.';
-      } else if (details.message) {
-        errorMessage = `Erreur: ${details.message}`;
-      }
-    }
-    
-    toast.error(errorMessage);
+    toast.error(error.message || 'Une erreur est survenue lors de l\'envoi du message');
   } finally {
     isSubmitting.value = false;
   }

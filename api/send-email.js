@@ -1,28 +1,22 @@
-// API handler for sending emails
+// API handler for sending emails via Resend
 export default async function handler(req, res) {
-  // Set CORS headers
+  // Handle CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // Handle OPTIONS request
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  // Only allow POST
   if (req.method !== 'POST') {
-    return res.status(405).json({
-      success: false,
-      message: 'Méthode non autorisée'
-    });
+    return res.status(405).json({ message: 'Méthode non autorisée' });
   }
 
   try {
-    // Get form data
     const formData = req.body;
 
-    // Create email HTML
+    // Construire l'email HTML avec les données du formulaire
     const html = `
       <h2>Nouvelle demande d'adhésion</h2>
       <h3>Identité</h3>
@@ -41,7 +35,7 @@ export default async function handler(req, res) {
       </ul>
     `;
 
-    // Send email with Resend
+    // Envoyer l'email via l'API Resend
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -56,25 +50,15 @@ export default async function handler(req, res) {
       })
     });
 
-    // Check response
-    const result = await response.json();
-
+    // Vérifier la réponse de l'API
     if (!response.ok) {
-      throw new Error(result.message || 'Erreur lors de l\'envoi de l\'email');
+      const error = await response.json();
+      return res.status(500).json({ message: error.message || 'Erreur lors de l\'envoi de l\'email' });
     }
 
-    // Return success
-    return res.status(200).json({
-      success: true,
-      message: 'Email envoyé avec succès'
-    });
-
+    return res.status(200).json({ message: 'Email envoyé avec succès' });
   } catch (error) {
-    // Log and return error
-    console.error('Erreur:', error);
-    return res.status(500).json({
-      success: false,
-      message: error.message || 'Erreur lors de l\'envoi de l\'email'
-    });
+    console.error('Erreur d\'envoi:', error);
+    return res.status(500).json({ message: error.message || 'Erreur lors de l\'envoi de l\'email' });
   }
 }
