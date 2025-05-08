@@ -2,8 +2,8 @@ require('dotenv').config();
 const nodemailer = require('nodemailer');
 
 module.exports = async (req, res) => {
-  // Activer CORS spécifiquement pour ral-rdc.online
-  const allowedOrigins = ['https://www.ral-rdc.online', 'https://ral-rdc.online', 'http://localhost:3000'];
+  // Activer CORS pour tous les domaines (en mode développement)
+  // En production, il est préférable de restreindre aux domaines spécifiques
   const origin = req.headers.origin;
   
   if (allowedOrigins.includes(origin)) {
