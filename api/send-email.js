@@ -1,34 +1,22 @@
-export const config = {
-  runtime: 'edge'
-};
-
-export default async function handler(req) {
+export default async function handler(req, res) {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 204,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Max-Age': '86400'
-      }
-    });
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Max-Age', '86400');
+    return res.status(204).end();
   }
 
   // Only allow POST
   if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json'
-      }
+    return res.status(405).json({
+      error: 'Method not allowed'
     });
   }
 
   try {
-    const formData = await req.json();
+    const formData = req.body;
 
     // Build email HTML
     const html = `
@@ -66,28 +54,26 @@ export default async function handler(req) {
 
     const result = await response.json();
 
-    return new Response(JSON.stringify({
+    // Set CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Content-Type', 'application/json');
+
+    return res.status(200).json({
       success: true,
       message: 'Email sent successfully',
       data: result
-    }), {
-      status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json'
-      }
     });
 
   } catch (error) {
-    return new Response(JSON.stringify({
+    console.error('Error sending email:', error);
+
+    // Set CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Content-Type', 'application/json');
+
+    return res.status(500).json({
       success: false,
       message: error.message || 'Failed to send email'
-    }), {
-      status: 500,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json'
-      }
     });
   }
 }
