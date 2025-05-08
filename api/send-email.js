@@ -1,24 +1,28 @@
+// API handler for sending emails
 export default async function handler(req, res) {
-  // Handle CORS preflight
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Handle OPTIONS request
   if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    res.setHeader('Access-Control-Max-Age', '86400');
-    return res.status(204).end();
+    return res.status(200).end();
   }
 
   // Only allow POST
   if (req.method !== 'POST') {
     return res.status(405).json({
-      error: 'Method not allowed'
+      success: false,
+      message: 'Méthode non autorisée'
     });
   }
 
   try {
+    // Get form data
     const formData = req.body;
 
-    // Build email HTML
+    // Create email HTML
     const html = `
       <h2>Nouvelle demande d'adhésion</h2>
       <h3>Identité</h3>
@@ -37,7 +41,7 @@ export default async function handler(req, res) {
       </ul>
     `;
 
-    // Send email via Resend API
+    // Send email with Resend
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -52,44 +56,25 @@ export default async function handler(req, res) {
       })
     });
 
+    // Check response
     const result = await response.json();
 
-    // Set CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Content-Type', 'application/json');
+    if (!response.ok) {
+      throw new Error(result.message || 'Erreur lors de l\'envoi de l\'email');
+    }
 
+    // Return success
     return res.status(200).json({
       success: true,
-      message: 'Email sent successfully',
-      data: result
+      message: 'Email envoyé avec succès'
     });
 
   } catch (error) {
-    console.error('Error sending email:', error);
-
-    // Set CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Content-Type', 'application/json');
-
+    // Log and return error
+    console.error('Erreur:', error);
     return res.status(500).json({
       success: false,
-      message: error.message || 'Failed to send email'
+      message: error.message || 'Erreur lors de l\'envoi de l\'email'
     });
   }
 }
-  } catch (error) {
-    console.error('Erreur lors de l\'envoi de l\'email:', error);
-    return new Response(JSON.stringify({ success: false, message: error.message || 'Erreur lors de l\'envoi de l\'email' }), {
-      status: 500,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json'
-      }
-    });
-  }
-}
-      message: 'Erreur lors de l\'envoi de l\'email', 
-      details: errorDetails 
-    });
-  }
-};
