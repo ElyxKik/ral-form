@@ -347,7 +347,7 @@ async function handleSubmit() {
     // Préparer les données du formulaire pour l'envoi
     const emailData = { ...form };
     // Envoi réel de l'email via notre API SMTP
-    const response = await fetch('/api/send-email', {
+    const response = await fetch('https://ral-form.vercel.app/api/send-email', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
