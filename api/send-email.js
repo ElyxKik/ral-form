@@ -3,21 +3,22 @@ export const config = {
 };
 
 export default async function handler(req) {
-  // Gérer les requêtes OPTIONS (pre-flight)
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    return new Response(JSON.stringify({ status: 'ok' }), {
-      status: 200,
+    return new Response(null, {
+      status: 204,
       headers: {
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type',
-        'Content-Type': 'application/json'
+        'Access-Control-Max-Age': '86400'
       }
     });
   }
 
+  // Only allow POST
   if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Méthode non autorisée' }), {
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
       status: 405,
       headers: {
         'Access-Control-Allow-Origin': '*',
@@ -28,62 +29,60 @@ export default async function handler(req) {
 
   try {
     const formData = await req.json();
+
+    // Build email HTML
     const html = `
       <h2>Nouvelle demande d'adhésion</h2>
       <h3>Identité</h3>
       <ul>
-        <li><strong>Nom :</strong> ${formData.nom}</li>
-        <li><strong>Post-nom :</strong> ${formData.postnom}</li>
-        <li><strong>Prénom :</strong> ${formData.prenom}</li>
-        <li><strong>Date de naissance :</strong> ${formData.dateNaissance}</li>
-        <li><strong>Ville de naissance :</strong> ${formData.villeNaissance}</li>
-        <li><strong>Province d'origine :</strong> ${formData.province}</li>
-        <li><strong>Lieu de résidence :</strong> ${formData.residence}</li>
-        <li><strong>Email :</strong> ${formData.email}</li>
-        <li><strong>Téléphone :</strong> ${formData.telephone}</li>
-        <li><strong>État civil :</strong> ${formData.etatcivil}</li>
-        <li><strong>Niveau d'études :</strong> ${formData.niveau}</li>
-        <li><strong>Statut social :</strong> ${formData.statut}</li>
+        <li>Nom: ${formData.nom}</li>
+        <li>Post-nom: ${formData.postnom}</li>
+        <li>Prénom: ${formData.prenom}</li>
+        <li>Email: ${formData.email}</li>
+        <li>Téléphone: ${formData.telephone}</li>
       </ul>
       <h3>Adhésion</h3>
       <ul>
-        <li><strong>Type d'adhésion :</strong> ${formData.typeAdhesion}</li>
-        ${formData.typeAdhesion === 'morale' ? `<li><strong>Nom de la structure :</strong> ${formData.structureNom}</li><li><strong>Numéro d'enregistrement :</strong> ${formData.structureNum}</li>` : ''}
-        <li><strong>Type de membre :</strong> ${formData.typeMembre}</li>
-        <li><strong>Comment avez-vous connu RAL :</strong> ${(formData.connaitRAL || []).join(', ')}</li>
-        <li><strong>Contribution prévue :</strong> ${formData.contribution}</li>
-        <li><strong>Domaine de compétence :</strong> ${formData.competence}</li>
-        <li><strong>Contribution mensuelle :</strong> ${formData.montant} $</li>
-        <li><strong>Engagement :</strong> ${formData.engagement ? 'Oui' : 'Non'}</li>
+        <li>Type: ${formData.typeAdhesion}</li>
+        <li>Membre: ${formData.typeMembre}</li>
+        <li>Contribution: ${formData.montant}$</li>
       </ul>
     `;
 
+    // Send email via Resend API
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer re_SsnctnZi_9rab8h7p1J3QYvF2W2uTfMr9`,
+        'Authorization': 'Bearer re_SsnctnZi_9rab8h7p1J3QYvF2W2uTfMr9',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         from: 'onboarding@resend.dev',
         to: 'kikuniely@gmail.com',
-        subject: `Nouvelle demande d'adhésion : ${formData.nom} ${formData.prenom}`,
+        subject: `Nouvelle adhésion: ${formData.nom} ${formData.prenom}`,
         html
       })
     });
 
-    const resendResponse = await response.json();
+    const result = await response.json();
 
-    return new Response(JSON.stringify({ success: true, message: 'Email envoyé avec succès', data: resendResponse }), {
+    return new Response(JSON.stringify({
+      success: true,
+      message: 'Email sent successfully',
+      data: result
+    }), {
       status: 200,
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json'
       }
     });
+
   } catch (error) {
-    console.error('Erreur lors de l\'envoi de l\'email:', error);
-    return new Response(JSON.stringify({ success: false, message: error.message || 'Erreur lors de l\'envoi de l\'email' }), {
+    return new Response(JSON.stringify({
+      success: false,
+      message: error.message || 'Failed to send email'
+    }), {
       status: 500,
       headers: {
         'Access-Control-Allow-Origin': '*',
