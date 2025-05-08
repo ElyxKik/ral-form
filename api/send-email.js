@@ -4,24 +4,18 @@ const { Resend } = require('resend');
 const resend = new Resend('re_SsnctnZi_9rab8h7p1J3QYvF2W2uTfMr9');
 
 module.exports = async (req, res) => {
-  // Activer CORS spécifiquement pour ral-rdc.online
-  const allowedOrigins = ['https://www.ral-rdc.online', 'https://ral-rdc.online', 'https://ral-form.vercel.app/'];
-  const origin = req.headers.origin;
-  
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  }
-  
-  res.setHeader('Access-Control-Allow-Credentials', true);
+  // Configuration CORS
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-  );
+  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
 
   // Gérer les requêtes OPTIONS (pre-flight)
   if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+    res.status(200).json({
+      body: 'OK'
+    });
+    return;
   }
 
   // Vérifier que la méthode est POST
