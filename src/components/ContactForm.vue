@@ -362,7 +362,23 @@ async function handleSubmit() {
     confirmation.value = true;
   } catch (error) {
     console.error('Erreur lors de l\'envoi du formulaire:', error);
-    toast.error('Une erreur est survenue lors de l\'envoi du message. Veuillez réessayer.');
+    
+    // Tenter d'extraire les détails de l'erreur si disponibles
+    let errorMessage = 'Une erreur est survenue lors de l\'envoi du message. Veuillez réessayer.';
+    
+    // Vérifier si nous avons des détails d'erreur du serveur
+    if (error.response && error.response.details) {
+      const details = error.response.details;
+      if (details.code === 'ECONNREFUSED') {
+        errorMessage = 'Impossible de se connecter au serveur mail. Vérifiez les paramètres de connexion.';
+      } else if (details.responseCode === 535) {
+        errorMessage = 'Authentification SMTP échouée. Vérifiez les identifiants.';
+      } else if (details.message) {
+        errorMessage = `Erreur: ${details.message}`;
+      }
+    }
+    
+    toast.error(errorMessage);
   } finally {
     isSubmitting.value = false;
   }

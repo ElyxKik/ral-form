@@ -30,17 +30,19 @@ module.exports = async (req, res) => {
     } = req.body;
 
     // Créer le transporteur SMTP
+    // Tenter de se connecter avec le port 465 (SSL)
     let transporter = nodemailer.createTransport({
       host: 'mail.ral-rdc.online',
-      port: 587,
-      secure: false,
+      port: 465,
+      secure: true, // true pour 465
       auth: {
         user: process.env.EMAIL_USER || 'formulaire@ral-rdc.online',
         pass: process.env.EMAIL_PASS
       },
       tls: {
         rejectUnauthorized: false
-      }
+      },
+      debug: true // Activer le débogage pour voir plus d'informations
     });
 
     // Configurer l'email
@@ -110,7 +112,23 @@ Engagement : ${engagement ? 'Oui' : 'Non'}
     await transporter.sendMail(mailOptions);
     return res.status(200).json({ success: true, message: 'Email envoyé avec succès' });
   } catch (error) {
+    // Log détaillé de l'erreur
     console.error('Erreur lors de l\'envoi de l\'email:', error);
-    return res.status(500).json({ success: false, message: 'Erreur lors de l\'envoi de l\'email' });
+    
+    // Extraire les informations pertinentes de l'erreur
+    const errorDetails = {
+      message: error.message,
+      code: error.code,
+      command: error.command,
+      responseCode: error.responseCode,
+      response: error.response
+    };
+    
+    // Renvoyer des détails d'erreur plus précis
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Erreur lors de l\'envoi de l\'email', 
+      details: errorDetails 
+    });
   }
 };
