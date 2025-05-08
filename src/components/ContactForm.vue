@@ -351,41 +351,38 @@ async function handleSubmit() {
     const apiUrl = '/api/send-email';
     console.log('Envoi du formulaire à:', apiUrl);
     
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(emailData)
-    });
-    const result = await response.json();
-    if (!result.success) {
-      throw new Error(result.message || 'Erreur lors de l\'envoi de l\'email');
-    }
-    toast.success('Votre message a été envoyé avec succès!');
-    confirmation.value = true;
-  } catch (error) {
-    console.error('Erreur lors de l\'envoi du formulaire:', error);
-    
-    // Tenter d'extraire les détails de l'erreur si disponibles
-    let errorMessage = 'Une erreur est survenue lors de l\'envoi du message. Veuillez réessayer.';
-    
-    // Vérifier si nous avons des détails d'erreur du serveur
-    if (error.response && error.response.details) {
-      const details = error.response.details;
-      if (details.code === 'ECONNREFUSED') {
-        errorMessage = 'Impossible de se connecter au serveur mail. Vérifiez les paramètres de connexion.';
-      } else if (details.responseCode === 535) {
-        errorMessage = 'Authentification SMTP échouée. Vérifiez les identifiants.';
-      } else if (details.message) {
-        errorMessage = `Erreur: ${details.message}`;
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(emailData)
+      });
+
+      let result;
+      const responseText = await response.text();
+      
+      try {
+        result = JSON.parse(responseText);
+      } catch (e) {
+        console.error('Réponse non-JSON:', responseText);
+        throw new Error('Réponse invalide du serveur');
       }
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || `Erreur ${response.status}: ${response.statusText}`);
+      }
+
+      toast.success('Votre message a été envoyé avec succès!');
+      confirmation.value = true;
+
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi du formulaire:', error);
+      toast.error(error.message || 'Une erreur est survenue lors de l\'envoi du message');
+    } finally {
+      isSubmitting.value = false;
     }
-    
-    toast.error(errorMessage);
-  } finally {
-    isSubmitting.value = false;
-  }
 }
 
 const confirmation = ref(false);
