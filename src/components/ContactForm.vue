@@ -1,201 +1,322 @@
 <template>
   <div class="bg-white rounded-xl shadow-xl overflow-hidden transform transition-all duration-500 hover:shadow-2xl animate-fade-in">
     <div class="bg-primary-600 p-6 text-white">
-      <h2 class="text-2xl font-bold">Formulaire de Contact</h2>
-      <p class="text-primary-100 mt-1">Remplissez le formulaire ci-dessous pour nous contacter</p>
+      <h2 class="text-2xl font-bold">Formulaire d'Adhésion</h2>
+      <p class="text-primary-100 mt-1">Merci de remplir toutes les informations demandées</p>
     </div>
-    
-    <form @submit.prevent="submitForm" class="p-6 space-y-6">
-      <transition-group 
-        name="form-field" 
-        tag="div" 
-        class="space-y-6"
-        appear
-      >
-        <!-- Nom -->
-        <div key="name" class="animate-slide-up" style="animation-delay: 100ms;">
-          <label for="name" class="form-label">Nom complet</label>
-          <input 
-            id="name" 
-            v-model="form.name" 
-            type="text" 
-            class="form-input" 
-            :class="{'border-red-500': errors.name}"
-            placeholder="Votre nom complet"
-          />
-          <p v-if="errors.name" class="error-text">{{ errors.name }}</p>
-        </div>
-        
-        <!-- Email -->
-        <div key="email" class="animate-slide-up" style="animation-delay: 200ms;">
-          <label for="email" class="form-label">Adresse email</label>
-          <input 
-            id="email" 
-            v-model="form.email" 
-            type="email" 
-            class="form-input" 
-            :class="{'border-red-500': errors.email}"
-            placeholder="votre@email.com"
-          />
-          <p v-if="errors.email" class="error-text">{{ errors.email }}</p>
-        </div>
-        
-        <!-- Téléphone -->
-        <div key="phone" class="animate-slide-up" style="animation-delay: 300ms;">
-          <label for="phone" class="form-label">Numéro de téléphone</label>
-          <input 
-            id="phone" 
-            v-model="form.phone" 
-            type="tel" 
-            class="form-input" 
-            :class="{'border-red-500': errors.phone}"
-            placeholder="Votre numéro de téléphone"
-          />
-          <p v-if="errors.phone" class="error-text">{{ errors.phone }}</p>
-        </div>
-        
-        <!-- Sujet -->
-        <div key="subject" class="animate-slide-up" style="animation-delay: 400ms;">
-          <label for="subject" class="form-label">Sujet</label>
-          <select 
-            id="subject" 
-            v-model="form.subject" 
-            class="form-input" 
-            :class="{'border-red-500': errors.subject}"
-          >
-            <option value="" disabled selected>Sélectionnez un sujet</option>
-            <option value="information">Demande d'information</option>
-            <option value="support">Support technique</option>
-            <option value="feedback">Commentaires</option>
-            <option value="other">Autre</option>
-          </select>
-          <p v-if="errors.subject" class="error-text">{{ errors.subject }}</p>
-        </div>
-        
-        <!-- Message -->
-        <div key="message" class="animate-slide-up" style="animation-delay: 500ms;">
-          <label for="message" class="form-label">Message</label>
-          <textarea 
-            id="message" 
-            v-model="form.message" 
-            rows="4" 
-            class="form-input" 
-            :class="{'border-red-500': errors.message}"
-            placeholder="Votre message ici..."
-          ></textarea>
-          <p v-if="errors.message" class="error-text">{{ errors.message }}</p>
-        </div>
-        
-        <!-- Checkbox -->
-        <div key="consent" class="flex items-start animate-slide-up" style="animation-delay: 600ms;">
-          <div class="flex items-center h-5">
-            <input 
-              id="consent" 
-              v-model="form.consent" 
-              type="checkbox" 
-              class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-            />
+    <form v-if="!confirmation" @submit.prevent="handleSubmit" class="p-6 space-y-6">
+      <transition-group name="form-field" tag="div" class="space-y-6" appear>
+        <template v-if="step === 1">
+          <h3 class="text-lg font-semibold text-primary-700 mb-4 animate-fade-in">1. Identité</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="animate-slide-up">
+              <label class="form-label">Nom</label>
+              <input v-model="form.nom" type="text" class="form-input" :class="{'border-red-500': errors.nom}" placeholder="Nom" />
+              <p v-if="errors.nom" class="error-text">{{ errors.nom }}</p>
+            </div>
+            <div class="animate-slide-up">
+              <label class="form-label">Post-nom</label>
+              <input v-model="form.postnom" type="text" class="form-input" :class="{'border-red-500': errors.postnom}" placeholder="Post-nom" />
+              <p v-if="errors.postnom" class="error-text">{{ errors.postnom }}</p>
+            </div>
+            <div class="animate-slide-up">
+              <label class="form-label">Prénom</label>
+              <input v-model="form.prenom" type="text" class="form-input" :class="{'border-red-500': errors.prenom}" placeholder="Prénom" />
+              <p v-if="errors.prenom" class="error-text">{{ errors.prenom }}</p>
+            </div>
+            <div class="animate-slide-up">
+  <label class="form-label">Date de naissance</label>
+  <input v-model="form.dateNaissance" type="date" class="form-input" :class="{'border-red-500': errors.dateNaissance}" />
+  <p v-if="errors.dateNaissance" class="error-text">{{ errors.dateNaissance }}</p>
+</div>
+<div class="animate-slide-up">
+  <label class="form-label">Ville de naissance</label>
+  <input v-model="form.villeNaissance" type="text" class="form-input" :class="{'border-red-500': errors.villeNaissance}" placeholder="Ville de naissance" />
+  <p v-if="errors.villeNaissance" class="error-text">{{ errors.villeNaissance }}</p>
+</div>
+            <div class="animate-slide-up">
+              <label class="form-label">Province d'origine</label>
+              <input v-model="form.province" type="text" class="form-input" :class="{'border-red-500': errors.province}" placeholder="Province" />
+              <p v-if="errors.province" class="error-text">{{ errors.province }}</p>
+            </div>
+            <div class="animate-slide-up">
+              <label class="form-label">Lieu de résidence (adresse physique)</label>
+              <input v-model="form.residence" type="text" class="form-input" :class="{'border-red-500': errors.residence}" placeholder="Adresse complète" />
+              <p v-if="errors.residence" class="error-text">{{ errors.residence }}</p>
+            </div>
+            <div class="animate-slide-up">
+              <label class="form-label">Adresse mail</label>
+              <input v-model="form.email" type="email" class="form-input" :class="{'border-red-500': errors.email}" placeholder="Votre email" />
+              <p v-if="errors.email" class="error-text">{{ errors.email }}</p>
+            </div>
+            <div class="animate-slide-up">
+              <label class="form-label">Téléphone</label>
+              <input v-model="form.telephone" type="tel" class="form-input" :class="{'border-red-500': errors.telephone}" placeholder="Votre téléphone" />
+              <p v-if="errors.telephone" class="error-text">{{ errors.telephone }}</p>
+            </div>
+            <div class="animate-slide-up">
+  <label class="form-label">État civil</label>
+  <select v-model="form.etatcivil" class="form-input" :class="{'border-red-500': errors.etatcivil}">
+    <option value="" disabled selected>Choisissez</option>
+    <option value="Célibataire">Célibataire</option>
+    <option value="Marié(e)">Marié(e)</option>
+    <option value="Divorcé(e)">Divorcé(e)</option>
+    <option value="Veuf/Veuve">Veuf/Veuve</option>
+  </select>
+  <p v-if="errors.etatcivil" class="error-text">{{ errors.etatcivil }}</p>
+</div>
+            <div class="animate-slide-up">
+              <label class="form-label">Niveau d'études</label>
+              <input v-model="form.niveau" type="text" class="form-input" :class="{'border-red-500': errors.niveau}" placeholder="Votre niveau" />
+              <p v-if="errors.niveau" class="error-text">{{ errors.niveau }}</p>
+            </div>
+            <div class="animate-slide-up">
+              <label class="form-label">Statut social</label>
+              <input v-model="form.statut" type="text" class="form-input" :class="{'border-red-500': errors.statut}" placeholder="Votre statut" />
+              <p v-if="errors.statut" class="error-text">{{ errors.statut }}</p>
+            </div>
           </div>
-          <div class="ml-3 text-sm">
-            <label for="consent" class="font-medium text-gray-700">J'accepte de recevoir des communications</label>
-            <p v-if="errors.consent" class="error-text">{{ errors.consent }}</p>
+        </template>
+        <template v-else>
+          <h3 class="text-lg font-semibold text-primary-700 mb-4 animate-fade-in">2. Adhésion</h3>
+          <div class="space-y-4">
+            <div class="animate-slide-up">
+              <label class="form-label">Adhérez-vous comme :</label>
+              <div class="flex gap-4">
+                <label class="inline-flex items-center">
+                  <input type="radio" v-model="form.typeAdhesion" value="physique" class="form-radio" />
+                  <span class="ml-2">Personne physique</span>
+                </label>
+                <label class="inline-flex items-center">
+                  <input type="radio" v-model="form.typeAdhesion" value="morale" class="form-radio" />
+                  <span class="ml-2">Personne morale</span>
+                </label>
+              </div>
+              <p v-if="errors.typeAdhesion" class="error-text">{{ errors.typeAdhesion }}</p>
+            </div>
+            <div v-if="form.typeAdhesion==='morale'" class="animate-slide-up">
+              <label class="form-label">Nom de la structure</label>
+              <input v-model="form.structureNom" type="text" class="form-input" :class="{'border-red-500': errors.structureNom}" placeholder="Nom de la structure" />
+              <p v-if="errors.structureNom" class="error-text">{{ errors.structureNom }}</p>
+              <label class="form-label mt-2">Numéro d'enregistrement légal</label>
+              <input v-model="form.structureNum" type="text" class="form-input" :class="{'border-red-500': errors.structureNum}" placeholder="Numéro d'enregistrement" />
+              <p v-if="errors.structureNum" class="error-text">{{ errors.structureNum }}</p>
+            </div>
+            <div class="animate-slide-up">
+              <label class="form-label">Adhésion comme :</label>
+              <select v-model="form.typeMembre" class="form-input" :class="{'border-red-500': errors.typeMembre}">
+                <option value="" disabled selected>Choisissez</option>
+                <option value="effectif">Membre effectif</option>
+                <option value="honneur">Membre d'honneur et sympathisant</option>
+              </select>
+              <p v-if="errors.typeMembre" class="error-text">{{ errors.typeMembre }}</p>
+            </div>
+            <div class="animate-slide-up">
+              <label class="form-label">Comment avez-vous connu RAL ?</label>
+              <div class="flex flex-wrap gap-4">
+                <label class="inline-flex items-center"><input type="checkbox" value="reseaux" v-model="form.connaitRAL" class="form-checkbox" /> <span class="ml-2">Réseaux sociaux</span></label>
+                <label class="inline-flex items-center"><input type="checkbox" value="radio" v-model="form.connaitRAL" class="form-checkbox" /> <span class="ml-2">Radio-Télé</span></label>
+                <label class="inline-flex items-center"><input type="checkbox" value="bouche" v-model="form.connaitRAL" class="form-checkbox" /> <span class="ml-2">Bouche à l'oreille</span></label>
+                <label class="inline-flex items-center"><input type="checkbox" value="autres" v-model="form.connaitRAL" class="form-checkbox" /> <span class="ml-2">Autres</span></label>
+              </div>
+              <p v-if="errors.connaitRAL" class="error-text">{{ errors.connaitRAL }}</p>
+            </div>
+            <div class="animate-slide-up">
+              <label class="form-label">Comment comptez-vous contribuer à la réalisation des objectifs de RAL ?</label>
+              <textarea v-model="form.contribution" rows="2" class="form-input" :class="{'border-red-500': errors.contribution}" placeholder="Votre contribution"></textarea>
+              <p v-if="errors.contribution" class="error-text">{{ errors.contribution }}</p>
+            </div>
+            <div class="animate-slide-up">
+              <label class="form-label">Domaine de compétence professionnelle (si opportunité d'embauche)</label>
+              <input v-model="form.competence" type="text" class="form-input" :class="{'border-red-500': errors.competence}" placeholder="Votre domaine" />
+              <p v-if="errors.competence" class="error-text">{{ errors.competence }}</p>
+            </div>
+            <div class="animate-slide-up">
+              <label class="form-label">Contribution mensuelle</label>
+              <div class="flex gap-4">
+                <label class="inline-flex items-center"><input type="radio" v-model="form.montant" value="10" class="form-radio" /> <span class="ml-2">10 $</span></label>
+                <label class="inline-flex items-center"><input type="radio" v-model="form.montant" value="20" class="form-radio" /> <span class="ml-2">20 $</span></label>
+                <label class="inline-flex items-center"><input type="radio" v-model="form.montant" value="50" class="form-radio" /> <span class="ml-2">50 $</span></label>
+                <label class="inline-flex items-center"><input type="radio" v-model="form.montant" value="100" class="form-radio" /> <span class="ml-2">100 $</span></label>
+              </div>
+              <p v-if="errors.montant" class="error-text">{{ errors.montant }}</p>
+            </div>
+            <div class="animate-slide-up">
+              <label class="form-label">Engagement</label>
+              <label class="inline-flex items-center">
+                <input type="checkbox" v-model="form.engagement" class="form-checkbox" />
+                <span class="ml-2">Je m'engage à respecter les textes qui régissent RAL conformément aux lois de la République.</span>
+              </label>
+              <p v-if="errors.engagement" class="error-text">{{ errors.engagement }}</p>
+            </div>
+            <div class="animate-slide-up bg-blue-50 p-3 rounded-md text-sm text-primary-700 flex items-center gap-2">
+              <span class="font-semibold">Info :</span>
+              Votre contribution se fait via ce numéro : <span class="font-mono">0998 696 641</span>
+            </div>
           </div>
-        </div>
-        
-        <!-- Submit Button -->
-        <div key="submit" class="pt-2 animate-slide-up" style="animation-delay: 700ms;">
-          <button 
-            type="submit" 
-            class="btn-primary w-full flex justify-center items-center"
-            :disabled="isSubmitting"
-          >
+        </template>
+        <!-- Navigation Buttons -->
+        <div class="flex justify-between pt-4 animate-slide-up">
+          <button v-if="step===2" type="button" @click="step=1" class="btn-primary bg-gray-300 text-gray-700 hover:bg-gray-400">Précédent</button>
+          <button v-if="step===1" type="button" @click="nextStep" class="btn-primary">Suivant</button>
+          <button v-if="step===2" type="submit" class="btn-primary" :disabled="isSubmitting">
             <svg v-if="isSubmitting" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            {{ isSubmitting ? 'Envoi en cours...' : 'Envoyer le message' }}
+            {{ isSubmitting ? 'Envoi en cours...' : 'Envoyer' }}
           </button>
         </div>
       </transition-group>
     </form>
+<div v-else class="p-8 flex flex-col items-center justify-center">
+  <svg class="w-16 h-16 text-green-500 mb-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+  <h3 class="text-2xl font-bold mb-2 text-primary-700">Merci pour votre inscription !</h3>
+  <p class="mb-2">Votre formulaire a bien été envoyé.</p>
+  <div class="bg-blue-50 text-blue-900 rounded p-4 mt-4 text-center">
+    <span class="font-semibold block mb-1">Info :</span>
+    Votre contribution se fait via ce numéro :<br>
+    <span class="font-mono text-lg">0998 696 641</span>
+  </div>
+</div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, defineEmits } from 'vue'
+import { ref, reactive } from 'vue'
 import { useToast } from 'vue-toastification'
 
 const emit = defineEmits(['form-submitted'])
 
+// Toujours commencer à l'étape 1
+const step = ref(1)
+
 const toast = useToast()
 
+function nextStep() {
+  if (validateStep1()) {
+    step.value = 2;
+  } else {
+    toast.error('Veuillez corriger les erreurs dans la première partie du formulaire.');
+  }
+}
+
+
 const form = reactive({
-  name: '',
+  nom: '',
+  postnom: '',
+  prenom: '',
+  dateNaissance: '',
+  villeNaissance: '',
+  province: '',
+  residence: '',
   email: '',
-  phone: '',
-  subject: '',
-  message: '',
-  consent: false
+  telephone: '',
+  etatcivil: '',
+  niveau: '',
+  statut: '',
+  typeAdhesion: '',
+  structureNom: '',
+  structureNum: '',
+  typeMembre: '',
+  connaitRAL: [],
+  contribution: '',
+  competence: '',
+  montant: '',
+  engagement: false
 })
 
 const errors = reactive({
-  name: '',
+  nom: '',
+  postnom: '',
+  prenom: '',
+  dateNaissance: '',
+  villeNaissance: '',
+  province: '',
+  residence: '',
   email: '',
-  phone: '',
-  subject: '',
-  message: '',
-  consent: ''
+  telephone: '',
+  etatcivil: '',
+  niveau: '',
+  statut: '',
+  typeAdhesion: '',
+  structureNom: '',
+  structureNum: '',
+  typeMembre: '',
+  connaitRAL: '',
+  contribution: '',
+  competence: '',
+  montant: '',
+  engagement: ''
 })
 
 const isSubmitting = ref(false)
 
-const validateForm = () => {
+const validateStep1 = () => {
   let isValid = true
-  
-  // Reset errors
-  Object.keys(errors).forEach(key => {
-    errors[key] = ''
-  })
-  
-  // Validate name
-  if (!form.name.trim()) {
-    errors.name = 'Le nom est requis'
+  // Reset errors for step 1
+  errors.nom = ''
+  errors.postnom = ''
+  errors.prenom = ''
+  errors.dateNaissance = ''
+  errors.villeNaissance = ''
+  errors.province = ''
+  errors.residence = ''
+  errors.email = ''
+  errors.telephone = ''
+  errors.etatcivil = ''
+  errors.niveau = ''
+  errors.statut = ''
+
+  if (!form.nom.trim()) {
+    errors.nom = 'Champ requis'
     isValid = false
   }
-  
-  // Validate email
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!form.postnom.trim()) {
+    errors.postnom = 'Champ requis'
+    isValid = false
+  }
+  if (!form.prenom.trim()) {
+    errors.prenom = 'Champ requis'
+    isValid = false
+  }
+  if (!form.dateNaissance) {
+    errors.dateNaissance = 'Champ requis'
+    isValid = false
+  }
+  if (!form.villeNaissance.trim()) {
+    errors.villeNaissance = 'Champ requis'
+    isValid = false
+  }
+  if (!form.province.trim()) {
+    errors.province = 'Champ requis'
+    isValid = false
+  }
+  if (!form.residence.trim()) {
+    errors.residence = 'Champ requis'
+    isValid = false
+  }
   if (!form.email.trim()) {
-    errors.email = 'L\'email est requis'
+    errors.email = 'Champ requis'
     isValid = false
-  } else if (!emailRegex.test(form.email)) {
-    errors.email = 'Veuillez entrer une adresse email valide'
-    isValid = false
-  }
-  
-  // Validate phone (optional but must be valid if provided)
-  if (form.phone.trim() && !/^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/.test(form.phone)) {
-    errors.phone = 'Veuillez entrer un numéro de téléphone valide'
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+    errors.email = 'Email invalide'
     isValid = false
   }
-  
-  // Validate subject
-  if (!form.subject) {
-    errors.subject = 'Veuillez sélectionner un sujet'
+  if (form.telephone && !/^\+?[0-9\s.-]{7,}$/.test(form.telephone)) {
+    errors.telephone = 'Numéro invalide'
     isValid = false
   }
-  
-  // Validate message
-  if (!form.message.trim()) {
-    errors.message = 'Le message est requis'
-    isValid = false
-  } else if (form.message.length < 10) {
-    errors.message = 'Le message doit contenir au moins 10 caractères'
+  if (!form.etatcivil.trim()) {
+    errors.etatcivil = 'Champ requis'
     isValid = false
   }
-  
-  // Validate consent
-  if (!form.consent) {
+  if (!form.niveau.trim()) {
+    errors.niveau = 'Champ requis'
+    isValid = false
+  }
+  if (!form.statut.trim()) {
+    errors.statut = 'Champ requis'
     errors.consent = 'Vous devez accepter les conditions'
     isValid = false
   }
@@ -203,28 +324,15 @@ const validateForm = () => {
   return isValid
 }
 
-const submitForm = async () => {
-  if (!validateForm()) {
-    toast.error('Veuillez corriger les erreurs dans le formulaire')
-    return
+async function handleSubmit() {
+  if (!validateStep2()) {
+    toast.error('Veuillez corriger les erreurs dans la deuxième partie du formulaire');
+    return;
   }
-  
-  isSubmitting.value = true
-  
+  isSubmitting.value = true;
   try {
     // Préparer les données du formulaire pour l'envoi
-    const emailData = {
-      name: form.name,
-      email: form.email,
-      phone: form.phone,
-      subject: form.subject,
-      message: form.message
-    }
-    
-    // En mode développement, nous pouvons simuler l'envoi
-    // En production, décommentez le bloc ci-dessous pour envoyer réellement l'email
-    
-    /*
+    const emailData = { ...form };
     // Envoi réel de l'email via notre API SMTP
     const response = await fetch('http://localhost:3000/send-email', {
       method: 'POST',
@@ -232,39 +340,76 @@ const submitForm = async () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(emailData)
-    })
-    
-    const result = await response.json()
-    
+    });
+    const result = await response.json();
     if (!result.success) {
-      throw new Error(result.message || 'Erreur lors de l\'envoi de l\'email')
+      throw new Error(result.message || 'Erreur lors de l\'envoi de l\'email');
     }
-    */
-    
-    // Simulation d'un délai d'envoi (pour la démonstration)
-    console.log('Simulation d\'envoi avec les données:', emailData)
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    toast.success('Votre message a été envoyé avec succès!')
-    
-    // Reset form
-    Object.keys(form).forEach(key => {
-      if (key === 'consent') {
-        form[key] = false
-      } else {
-        form[key] = ''
-      }
-    })
-    
-    // Emit event to show confirmation page
-    emit('form-submitted')
+    toast.success('Votre message a été envoyé avec succès!');
+    confirmation.value = true;
   } catch (error) {
-    console.error('Erreur lors de l\'envoi du formulaire:', error)
-    toast.error('Une erreur est survenue lors de l\'envoi du message. Veuillez réessayer.')
+    console.error('Erreur lors de l\'envoi du formulaire:', error);
+    toast.error('Une erreur est survenue lors de l\'envoi du message. Veuillez réessayer.');
   } finally {
-    isSubmitting.value = false
+    isSubmitting.value = false;
   }
 }
+
+const confirmation = ref(false);
+
+function validateStep2() {
+  let isValid = true;
+  errors.typeAdhesion = '';
+  errors.structureNom = '';
+  errors.structureNum = '';
+  errors.typeMembre = '';
+  errors.connaitRAL = '';
+  errors.contribution = '';
+  errors.competence = '';
+  errors.montant = '';
+  errors.engagement = '';
+
+  if (!form.typeAdhesion) {
+    errors.typeAdhesion = 'Champ requis';
+    isValid = false;
+  }
+  if (form.typeAdhesion === 'morale') {
+    if (!form.structureNom.trim()) {
+      errors.structureNom = 'Champ requis';
+      isValid = false;
+    }
+    if (!form.structureNum.trim()) {
+      errors.structureNum = 'Champ requis';
+      isValid = false;
+    }
+  }
+  if (!form.typeMembre) {
+    errors.typeMembre = 'Champ requis';
+    isValid = false;
+  }
+  if (!form.connaitRAL.length) {
+    errors.connaitRAL = 'Champ requis';
+    isValid = false;
+  }
+  if (!form.contribution.trim()) {
+    errors.contribution = 'Champ requis';
+    isValid = false;
+  }
+  if (!form.competence.trim()) {
+    errors.competence = 'Champ requis';
+    isValid = false;
+  }
+  if (!form.montant) {
+    errors.montant = 'Champ requis';
+    isValid = false;
+  }
+  if (!form.engagement) {
+    errors.engagement = 'Vous devez accepter l\'engagement';
+    isValid = false;
+  }
+  return isValid;
+}
+
 </script>
 
 <style scoped>
