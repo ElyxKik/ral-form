@@ -1,92 +1,112 @@
-const { Resend } = require('resend');
+export const config = {
+  runtime: 'edge'
+};
 
-// Initialiser Resend avec la clé API
-const resend = new Resend('re_SsnctnZi_9rab8h7p1J3QYvF2W2uTfMr9');
-
-module.exports = async (req, res) => {
-  // Configuration CORS
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
-
+export default async function handler(req) {
   // Gérer les requêtes OPTIONS (pre-flight)
   if (req.method === 'OPTIONS') {
-    res.status(200).json({
-      body: 'OK'
+    return new Response(JSON.stringify({ status: 'ok' }), {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Content-Type': 'application/json'
+      }
     });
-    return;
   }
 
   // Vérifier que la méthode est POST
   if (req.method !== 'POST') {
-    return res.status(405).json({ success: false, message: 'Méthode non autorisée' });
+    return new Response(JSON.stringify({ error: 'Méthode non autorisée' }), {
+      status: 405,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json'
+      }
+    });
   }
 
   try {
-    // Récupérer les données du formulaire
-    const {
-      nom, postnom, prenom, dateNaissance, villeNaissance, province, residence, email, telephone,
-      etatcivil, niveau, statut, typeAdhesion, structureNom, structureNum, typeMembre, connaitRAL,
-      contribution, competence, montant, engagement
-    } = req.body;
-
-    // Préparer le contenu HTML de l'email
+    const formData = await req.json();
+    
+    // Construire le contenu de l'email
     const html = `
-        <h2>Nouvelle demande d'adhésion</h2>
-        <h3>Identité</h3>
-        <ul>
-          <li><strong>Nom :</strong> ${nom}</li>
-          <li><strong>Post-nom :</strong> ${postnom}</li>
-          <li><strong>Prénom :</strong> ${prenom}</li>
-          <li><strong>Date de naissance :</strong> ${dateNaissance}</li>
-          <li><strong>Ville de naissance :</strong> ${villeNaissance}</li>
-          <li><strong>Province d'origine :</strong> ${province}</li>
-          <li><strong>Lieu de résidence :</strong> ${residence}</li>
-          <li><strong>Adresse mail :</strong> ${email}</li>
-          <li><strong>Téléphone :</strong> ${telephone}</li>
-          <li><strong>État civil :</strong> ${etatcivil}</li>
-          <li><strong>Niveau d'études :</strong> ${niveau}</li>
-          <li><strong>Statut social :</strong> ${statut}</li>
-        </ul>
-        <h3>Adhésion</h3>
-        <ul>
-          <li><strong>Type d'adhésion :</strong> ${typeAdhesion}</li>
-          ${typeAdhesion === 'morale' ? `<li><strong>Nom de la structure :</strong> ${structureNom}</li><li><strong>Numéro d'enregistrement :</strong> ${structureNum}</li>` : ''}
-          <li><strong>Type de membre :</strong> ${typeMembre}</li>
-          <li><strong>Comment avez-vous connu RAL :</strong> ${(connaitRAL || []).join(', ')}</li>
-          <li><strong>Contribution prévue :</strong> ${contribution}</li>
-          <li><strong>Domaine de compétence :</strong> ${competence}</li>
-          <li><strong>Contribution mensuelle :</strong> ${montant} $</li>
-          <li><strong>Engagement :</strong> ${engagement ? 'Oui' : 'Non'}</li>
-        </ul>
+      <h2>Nouvelle demande d'adhésion</h2>
+      <h3>Identité</h3>
+      <ul>
+        <li><strong>Nom :</strong> ${formData.nom}</li>
+        <li><strong>Post-nom :</strong> ${formData.postnom}</li>
+        <li><strong>Prénom :</strong> ${formData.prenom}</li>
+        <li><strong>Date de naissance :</strong> ${formData.dateNaissance}</li>
+        <li><strong>Ville de naissance :</strong> ${formData.villeNaissance}</li>
+        <li><strong>Province d'origine :</strong> ${formData.province}</li>
+        <li><strong>Lieu de résidence :</strong> ${formData.residence}</li>
+        <li><strong>Email :</strong> ${formData.email}</li>
+        <li><strong>Téléphone :</strong> ${formData.telephone}</li>
+        <li><strong>État civil :</strong> ${formData.etatcivil}</li>
+        <li><strong>Niveau d'études :</strong> ${formData.niveau}</li>
+        <li><strong>Statut social :</strong> ${formData.statut}</li>
+      </ul>
+      <h3>Adhésion</h3>
+      <ul>
+        <li><strong>Type d'adhésion :</strong> ${formData.typeAdhesion}</li>
+        ${formData.typeAdhesion === 'morale' ? `<li><strong>Nom de la structure :</strong> ${formData.structureNom}</li><li><strong>Numéro d'enregistrement :</strong> ${formData.structureNum}</li>` : ''}
+        <li><strong>Type de membre :</strong> ${formData.typeMembre}</li>
+        <li><strong>Comment avez-vous connu RAL :</strong> ${(formData.connaitRAL || []).join(', ')}</li>
+        <li><strong>Contribution prévue :</strong> ${formData.contribution}</li>
+        <li><strong>Domaine de compétence :</strong> ${formData.competence}</li>
+        <li><strong>Contribution mensuelle :</strong> ${formData.montant} $</li>
+        <li><strong>Engagement :</strong> ${formData.engagement ? 'Oui' : 'Non'}</li>
+      </ul>
     `;
 
-    // Envoyer l'email avec Resend
-    await resend.emails.send({
-      from: 'onboarding@resend.dev', // Pour le moment, utilise l'adresse de test
-      to: 'kikuniely@gmail.com',
-      subject: `Nouvelle demande d'adhésion : ${nom} ${prenom}`,
-      html
+    // Envoyer l'email via l'API Resend
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer re_SsnctnZi_9rab8h7p1J3QYvF2W2uTfMr9`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: 'onboarding@resend.dev',
+        to: 'kikuniely@gmail.com',
+        subject: `Nouvelle demande d'adhésion : ${formData.nom} ${formData.prenom}`,
+        html
+      })
     });
 
-    return res.status(200).json({ success: true, message: 'Email envoyé avec succès' });
+    const resendResponse = await response.json();
+
+    return new Response(JSON.stringify({ success: true, message: 'Email envoyé avec succès', data: resendResponse }), {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json'
+      }
+    });
   } catch (error) {
-    // Log détaillé de l'erreur
     console.error('Erreur lors de l\'envoi de l\'email:', error);
-    
-    // Extraire les informations pertinentes de l'erreur
-    const errorDetails = {
-      message: error.message,
-      code: error.code,
-      command: error.command,
-      responseCode: error.responseCode,
-      response: error.response
-    };
-    
-    // Renvoyer des détails d'erreur plus précis
-    return res.status(500).json({ 
-      success: false, 
+    return new Response(JSON.stringify({ success: false, message: error.message || 'Erreur lors de l\'envoi de l\'email' }), {
+      status: 500,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json'
+      }
+    });
+  }
+}
+  } catch (error) {
+    console.error('Erreur lors de l\'envoi de l\'email:', error);
+    return new Response(JSON.stringify({ success: false, message: error.message || 'Erreur lors de l\'envoi de l\'email' }), {
+      status: 500,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json'
+      }
+    });
+  }
+}
       message: 'Erreur lors de l\'envoi de l\'email', 
       details: errorDetails 
     });
