@@ -122,7 +122,7 @@ export default async function handler(req, res) {
       <div style="margin-top: 20px; background-color: #EFF6FF; padding: 15px; border-radius: 5px;">
         <p style="margin: 0; font-weight: bold;">Informations de paiement:</p>
         <p style="margin: 5px 0;">Les contributions se font via les numéros suivants:</p>
-        <div style="margin: 10px 0; background-color: white; padding: 10px; border-radius: 4px; display: inline-block;">0998 696 641</div>
+        <div style="margin: 10px 0; background-color: white; padding: 10px; border-radius: 4px; display: inline-block;">0897906898</div>
         <div style="margin: 10px 0; background-color: white; padding: 10px; border-radius: 4px; display: inline-block;">0825 433 625</div>
       </div>
     `;
