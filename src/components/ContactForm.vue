@@ -156,7 +156,7 @@
               </span>
               </div>
               <div>
-                <span class="font-mono">0998 696 641 | 0825 433 625</span>
+                <span class="font-mono">089 790 6898 | 082 543 3625</span>
               </div>
             </div>
           </div>
