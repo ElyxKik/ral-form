@@ -43,8 +43,8 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'Formulaire RAL <onboarding@resend.dev>',
-        to: ['kikuniely@gmail.com'],
+        from: 'Formulaire d\'adhesion RAL <onboarding@resend.dev>',
+        to: ['ral.rdc2025@gmail.com'],
         subject: `Nouvelle adhésion: ${formData.nom} ${formData.prenom}`,
         html
       })
