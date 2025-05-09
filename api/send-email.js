@@ -39,12 +39,12 @@ export default async function handler(req, res) {
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
-        'Authorization': 'Bearer re_SsnctnZi_9rab8h7p1J3QYvF2W2uTfMr9',
+        'Authorization': `Bearer ${process.env.RESEND_API_KEY || 're_SsnctnZi_9rab8h7p1J3QYvF2W2uTfMr9'}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'onboarding@resend.dev',
-        to: 'kikuniely@gmail.com',
+        from: 'Formulaire RAL <onboarding@resend.dev>',
+        to: ['kikuniely@gmail.com'],
         subject: `Nouvelle adhésion: ${formData.nom} ${formData.prenom}`,
         html
       })
